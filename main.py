@@ -25,7 +25,7 @@ class AttendanceFileHandler:
         Private helper method to append a new line to a specified file.
         """
         with open(filename, 'a') as f:
-            f.write(line + "\n")
+            f.write(line + "")
 
     def add_student_record(self, student_id, name):
         """
@@ -167,7 +167,7 @@ def main():
         try:
             print_main_menu() # Display the menu
             
-            choice = input("\nEnter choice (1-5): ")
+            choice = input("Enter choice (1-5): ")
             
             if choice == '1':
                 student_id = input("Enter Student ID: ")
@@ -186,14 +186,14 @@ def main():
                 system.view_attendance()
             
             elif choice == '5':
-                print("Goodbye!")
+                print("See you next time!")
                 break # Exit the loop and end the program
             
             else:
                 print("Invalid choice!")
         
         except KeyboardInterrupt:
-            print("\nGoodbye!") # Handle Ctrl+C gracefully
+            print("See you next time!") # Handle Ctrl+C gracefully
             break
         except Exception as e:
             # Catch any unexpected errors and print them, matching original behavior
