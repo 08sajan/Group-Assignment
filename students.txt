@@ -8,3 +8,7 @@
 12000003,Raju Dahal
 12000004,Manish Parajuli
 12000005,Nimisha Dahal
+12000006,Frienson Pradhan
+12000009,Kp Oli
+12000010,Ronaldo KC
+12000011,Balen Shah

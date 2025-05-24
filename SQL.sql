@@ -1,33 +1,274 @@
--- Select the attendance_system database.
--- Make sure this database already exists from your previous step.
+-- ====================================================================
+-- Attendance System Database Setup Script (With All Subjects Assigned)
+-- ====================================================================
+-- This script will:
+-- 1. Create the 'attendance_system' database if it doesn't exist.
+-- 2. Switch to using the 'attendance_system' database.
+-- 3. Drop existing tables (in correct order of dependency)
+--    to ensure a clean setup.
+-- 4. Create 'instructors', 'students', 'subjects', 'student_subjects',
+--    and 'attendance' tables.
+-- 5. Populate 'instructors'.
+-- 6. Populate 'students'.
+-- 7. Populate 'subjects' (CORRECTED LIST).
+-- 8. Populate 'student_subjects' to assign ALL subjects to ALL students.
+-- 9. Populate 'attendance' with your comprehensive sample data.
+-- ====================================================================
+
+-- 1. Create the database
+CREATE DATABASE IF NOT EXISTS attendance_system;
+
+-- 2. Select the database
 USE attendance_system;
 
--- Drop tables if they already exist to avoid errors if you run this multiple times
--- You can comment these lines out after the first successful run.
--- DROP TABLE IF EXISTS attendance;
--- DROP TABLE IF EXISTS students;
+-- 3. Drop existing tables (in reverse order of dependency) [cite: 1]
+DROP TABLE IF EXISTS attendance;
+DROP TABLE IF EXISTS student_subjects;
+DROP TABLE IF EXISTS subjects;
+DROP TABLE IF EXISTS students;
+DROP TABLE IF EXISTS instructors;
 
+-- 4. Create the 'instructors' table [cite: 1]
+CREATE TABLE instructors (
+    instructor_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    class_id VARCHAR(255)
+);
 
--- Create the 'students' table to store student information
+-- 5. Create the 'students' table [cite: 1]
 CREATE TABLE students (
-    student_id VARCHAR(50) PRIMARY KEY, -- Unique identifier for each student
-    name VARCHAR(100) NOT NULL,        -- Student's full name (cannot be empty)
-    course VARCHAR(100),               -- The course the student is enrolled in
-    date DATETIME                      -- Used in Python for the date of attendance marking
+    student_id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    course VARCHAR(255),
+    class_id VARCHAR(50)
 );
 
--- Create the 'attendance' table to store attendance records
+-- 6. Create the 'subjects' table [cite: 1]
+CREATE TABLE subjects (
+    subject_id INT AUTO_INCREMENT PRIMARY KEY,
+    subject_name VARCHAR(255) NOT NULL UNIQUE
+);
+
+-- 7. Create the 'student_subjects' table [cite: 1]
+CREATE TABLE student_subjects (
+    student_id VARCHAR(50),
+    subject_id INT,
+    PRIMARY KEY (student_id, subject_id),
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    FOREIGN KEY (subject_id) REFERENCES subjects(subject_id) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+-- 8. Create the 'attendance' table [cite: 1]
 CREATE TABLE attendance (
-    attendance_id INT AUTO_INCREMENT PRIMARY KEY, -- Unique ID for each attendance record
-    student_id VARCHAR(50) NOT NULL,              -- Student ID, links to the students table
-    class_id VARCHAR(50) NOT NULL,                -- The ID of the class attended
-    present BOOLEAN DEFAULT 0,                    -- Attendance status: 0 for Absent, 1 for Present (default is Absent)
-    
-    -- Define a foreign key constraint to link student_id to the students table
-    -- ON DELETE CASCADE means if a student is deleted, their attendance records are also deleted
-    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE
+    attendance_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id VARCHAR(50),
+    class_id VARCHAR(50),
+    date DATE,
+    present BOOLEAN,
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    UNIQUE KEY unique_attendance (student_id, class_id, date)
 );
 
--- Optional: You can run these commands after creation to verify the table structures
--- DESCRIBE students;
--- DESCRIBE attendance;
+-- 9. Populate the 'instructors' table [cite: 1]
+INSERT INTO instructors (name, password, class_id) VALUES
+    ('kc', 'sajan', 'C1'),
+    ('Nimi', 'sajan', 'C2'),
+    ('Upendra', 'sajan', 'C3'),
+    ('Rana', 'sajan', 'C4'),
+    ('Guras', 'sajan', 'C5'),
+    ('Fulmaya', 'sajan', 'C6'),
+    ('Biste', 'sajan', 'C8'),
+    ('Ram', 'sajan', 'C9');
+
+-- 10. Populate the 'students' table [cite: 1]
+INSERT INTO students (student_id, name, password, course, class_id) VALUES
+    ('12044719', 'Sajan Dhungel', 'sajan', 'Mathematics', 'C1'),
+    ('12044840', 'Dipendra K C', 'sajan', 'English', 'C2'),
+    ('12044772', 'Sanjeev Bishta', 'sajan', 'Science', 'C3'),
+    ('12043494', 'Ume Habiba', 'sajan', 'History', 'C4'),
+    ('12042244', 'Niraj Thapa', 'sajan', 'Art', 'C5'),
+    ('12000001', 'Manish Oli', 'sajan', 'Economics', 'C6'),
+    ('12000002', 'Ganesh Bishta', 'sajan', 'Mathematics', 'C7'),
+    ('12000003', 'Raju Dahal', 'sajan', 'Chemistry', 'C8'),
+    ('12000004', 'Manish Parajuli', 'sajan', 'Biology', 'C9'),
+    ('12000005', 'Nimisha Dahal', 'sajan', 'English', 'C2');
+
+-- 11. Populate the 'subjects' table -- CORRECTED LIST
+INSERT IGNORE INTO subjects (subject_name) VALUES
+    ('Mathematics'), 
+    ('English'),         -- Crucial for Nimi (matches ROUTINE_DATA)
+    ('Science'),         -- Crucial for Upendra (matches ROUTINE_DATA)
+    ('History'),
+    ('Art'),             -- Crucial for Guras (matches ROUTINE_DATA)
+    ('Economics'),
+    ('Chemistry'),
+    ('Biology'),
+    ('Physics'),
+    -- Optional additional subjects from your previous SQL script
+    ('English Literature'), 
+    ('Geography'), 
+    ('Computer Programming'),
+    ('Data Structures'), 
+    ('Business Studies'), 
+    ('Fine Arts');
+
+-- 12. Populate the 'student_subjects' table to assign ALL subjects to ALL students [cite: 1]
+INSERT INTO student_subjects (student_id, subject_id)
+SELECT s.student_id, sub.subject_id
+FROM students s, subjects sub
+ON DUPLICATE KEY UPDATE student_id = s.student_id, subject_id = sub.subject_id; -- Prevents error if script is run multiple times with same students/subjects
+
+
+-- 13. Populate the 'attendance' table with expanded sample data [cite: 1]
+-- Using 1 for Present, 0 for Absent.
+INSERT INTO attendance (student_id, class_id, date, present) VALUES
+    -- Date: 2025-05-22
+    ('12044719', 'C1', '2025-05-22', 1), ('12044840', 'C2', '2025-05-22', 0),
+    ('12044772', 'C3', '2025-05-22', 1), ('12043494', 'C4', '2025-05-22', 0),
+    ('12042244', 'C5', '2025-05-22', 1), ('12000001', 'C6', '2025-05-22', 0),
+    ('12000002', 'C7', '2025-05-22', 1), ('12000003', 'C8', '2025-05-22', 0),
+    ('12000004', 'C9', '2025-05-22', 1), ('12000005', 'C2', '2025-05-22', 1),
+
+    -- Date: 2025-05-23
+    ('12044719', 'C1', '2025-05-23', 0), ('12044840', 'C2', '2025-05-23', 1),
+    ('12044772', 'C3', '2025-05-23', 0), ('12043494', 'C4', '2025-05-23', 1),
+    ('12042244', 'C5', '2025-05-23', 0), ('12000001', 'C6', '2025-05-23', 1),
+    ('12000002', 'C7', '2025-05-23', 0), ('12000003', 'C8', '2025-05-23', 1),
+    ('12000004', 'C9', '2025-05-23', 0), ('12000005', 'C2', '2025-05-23', 1),
+
+    -- Date: 2025-05-24
+    ('12044719', 'C1', '2025-05-24', 1), ('12044840', 'C2', '2025-05-24', 1),
+    ('12044772', 'C3', '2025-05-24', 1), ('12043494', 'C4', '2025-05-24', 0),
+    ('12042244', 'C5', '2025-05-24', 1), ('12000001', 'C6', '2025-05-24', 0),
+    ('12000002', 'C7', '2025-05-24', 1), ('12000003', 'C8', '2025-05-24', 0),
+    ('12000004', 'C9', '2025-05-24', 1), ('12000005', 'C2', '2025-05-24', 0),
+
+    -- Date: 2025-05-25
+    ('12044719', 'C1', '2025-05-25', 0), ('12044840', 'C2', '2025-05-25', 0),
+    ('12044772', 'C3', '2025-05-25', 0), ('12043494', 'C4', '2025-05-25', 1),
+    ('12042244', 'C5', '2025-05-25', 0), ('12000001', 'C6', '2025-05-25', 1),
+    ('12000002', 'C7', '2025-05-25', 0), ('12000003', 'C8', '2025-05-25', 1),
+    ('12000004', 'C9', '2025-05-25', 0), ('12000005', 'C2', '2025-05-25', 1),
+
+    -- Date: 2025-05-26
+    ('12044719', 'C1', '2025-05-26', 1), ('12044840', 'C2', '2025-05-26', 1),
+    ('12044772', 'C3', '2025-05-26', 1), ('12043494', 'C4', '2025-05-26', 1),
+    ('12042244', 'C5', '2025-05-26', 1), ('12000001', 'C6', '2025-05-26', 0),
+    ('12000002', 'C7', '2025-05-26', 1), ('12000003', 'C8', '2025-05-26', 0),
+    ('12000004', 'C9', '2025-05-26', 1), ('12000005', 'C2', '2025-05-26', 0),
+
+    -- Date: 2025-05-27
+    ('12044719', 'C1', '2025-05-27', 0), ('12044840', 'C2', '2025-05-27', 0),
+    ('12044772', 'C3', '2025-05-27', 0), ('12043494', 'C4', '2025-05-27', 0),
+    ('12042244', 'C5', '2025-05-27', 0), ('12000001', 'C6', '2025-05-27', 1),
+    ('12000002', 'C7', '2025-05-27', 0), ('12000003', 'C8', '2025-05-27', 1),
+    ('12000004', 'C9', '2025-05-27', 0), ('12000005', 'C2', '2025-05-27', 1),
+
+    -- Date: 2025-05-28
+    ('12044719', 'C1', '2025-05-28', 1), ('12044840', 'C2', '2025-05-28', 1),
+    ('12044772', 'C3', '2025-05-28', 1), ('12043494', 'C4', '2025-05-28', 1),
+    ('12042244', 'C5', '2025-05-28', 1), ('12000001', 'C6', '2025-05-28', 1),
+    ('12000002', 'C7', '2025-05-28', 1), ('12000003', 'C8', '2025-05-28', 0),
+    ('12000004', 'C9', '2025-05-28', 1), ('12000005', 'C2', '2025-05-28', 0),
+
+    -- Additional 15 days starting from 2025-05-29
+    -- Date: 2025-05-29
+    ('12044719', 'C1', '2025-05-29', 0), ('12044840', 'C2', '2025-05-29', 1),
+    ('12044772', 'C3', '2025-05-29', 0), ('12043494', 'C4', '2025-05-29', 1),
+    ('12042244', 'C5', '2025-05-29', 0), ('12000001', 'C6', '2025-05-29', 1),
+    ('12000002', 'C7', '2025-05-29', 0), ('12000003', 'C8', '2025-05-29', 1),
+    ('12000004', 'C9', '2025-05-29', 0), ('12000005', 'C2', '2025-05-29', 1),
+    -- Date: 2025-05-30
+    ('12044719', 'C1', '2025-05-30', 1), ('12044840', 'C2', '2025-05-30', 0),
+    ('12044772', 'C3', '2025-05-30', 1), ('12043494', 'C4', '2025-05-30', 0),
+    ('12042244', 'C5', '2025-05-30', 1), ('12000001', 'C6', '2025-05-30', 0),
+    ('12000002', 'C7', '2025-05-30', 1), ('12000003', 'C8', '2025-05-30', 0),
+    ('12000004', 'C9', '2025-05-30', 1), ('12000005', 'C2', '2025-05-30', 0),
+    -- Date: 2025-05-31
+    ('12044719', 'C1', '2025-05-31', 0), ('12044840', 'C2', '2025-05-31', 1),
+    ('12044772', 'C3', '2025-05-31', 0), ('12043494', 'C4', '2025-05-31', 1),
+    ('12042244', 'C5', '2025-05-31', 0), ('12000001', 'C6', '2025-05-31', 1),
+    ('12000002', 'C7', '2025-05-31', 0), ('12000003', 'C8', '2025-05-31', 1),
+    ('12000004', 'C9', '2025-05-31', 0), ('12000005', 'C2', '2025-05-31', 1),
+    -- Date: 2025-06-01
+    ('12044719', 'C1', '2025-06-01', 1), ('12044840', 'C2', '2025-06-01', 0),
+    ('12044772', 'C3', '2025-06-01', 1), ('12043494', 'C4', '2025-06-01', 0),
+    ('12042244', 'C5', '2025-06-01', 1), ('12000001', 'C6', '2025-06-01', 0),
+    ('12000002', 'C7', '2025-06-01', 1), ('12000003', 'C8', '2025-06-01', 0),
+    ('12000004', 'C9', '2025-06-01', 1), ('12000005', 'C2', '2025-06-01', 0),
+    -- Date: 2025-06-02
+    ('12044719', 'C1', '2025-06-02', 0), ('12044840', 'C2', '2025-06-02', 1),
+    ('12044772', 'C3', '2025-06-02', 0), ('12043494', 'C4', '2025-06-02', 1),
+    ('12042244', 'C5', '2025-06-02', 0), ('12000001', 'C6', '2025-06-02', 1),
+    ('12000002', 'C7', '2025-06-02', 0), ('12000003', 'C8', '2025-06-02', 1),
+    ('12000004', 'C9', '2025-06-02', 0), ('12000005', 'C2', '2025-06-02', 1),
+    -- Date: 2025-06-03
+    ('12044719', 'C1', '2025-06-03', 1), ('12044840', 'C2', '2025-06-03', 0),
+    ('12044772', 'C3', '2025-06-03', 1), ('12043494', 'C4', '2025-06-03', 0),
+    ('12042244', 'C5', '2025-06-03', 1), ('12000001', 'C6', '2025-06-03', 0),
+    ('12000002', 'C7', '2025-06-03', 1), ('12000003', 'C8', '2025-06-03', 0),
+    ('12000004', 'C9', '2025-06-03', 1), ('12000005', 'C2', '2025-06-03', 0),
+    -- Date: 2025-06-04
+    ('12044719', 'C1', '2025-06-04', 0), ('12044840', 'C2', '2025-06-04', 1),
+    ('12044772', 'C3', '2025-06-04', 0), ('12043494', 'C4', '2025-06-04', 1),
+    ('12042244', 'C5', '2025-06-04', 0), ('12000001', 'C6', '2025-06-04', 1),
+    ('12000002', 'C7', '2025-06-04', 0), ('12000003', 'C8', '2025-06-04', 1),
+    ('12000004', 'C9', '2025-06-04', 0), ('12000005', 'C2', '2025-06-04', 1),
+    -- Date: 2025-06-05
+    ('12044719', 'C1', '2025-06-05', 1), ('12044840', 'C2', '2025-06-05', 0),
+    ('12044772', 'C3', '2025-06-05', 1), ('12043494', 'C4', '2025-06-05', 0),
+    ('12042244', 'C5', '2025-06-05', 1), ('12000001', 'C6', '2025-06-05', 0),
+    ('12000002', 'C7', '2025-06-05', 1), ('12000003', 'C8', '2025-06-05', 0),
+    ('12000004', 'C9', '2025-06-05', 1), ('12000005', 'C2', '2025-06-05', 0),
+    -- Date: 2025-06-06
+    ('12044719', 'C1', '2025-06-06', 0), ('12044840', 'C2', '2025-06-06', 1),
+    ('12044772', 'C3', '2025-06-06', 0), ('12043494', 'C4', '2025-06-06', 1),
+    ('12042244', 'C5', '2025-06-06', 0), ('12000001', 'C6', '2025-06-06', 1),
+    ('12000002', 'C7', '2025-06-06', 0), ('12000003', 'C8', '2025-06-06', 1),
+    ('12000004', 'C9', '2025-06-06', 0), ('12000005', 'C2', '2025-06-06', 1),
+    -- Date: 2025-06-07
+    ('12044719', 'C1', '2025-06-07', 1), ('12044840', 'C2', '2025-06-07', 0),
+    ('12044772', 'C3', '2025-06-07', 1), ('12043494', 'C4', '2025-06-07', 0),
+    ('12042244', 'C5', '2025-06-07', 1), ('12000001', 'C6', '2025-06-07', 0),
+    ('12000002', 'C7', '2025-06-07', 1), ('12000003', 'C8', '2025-06-07', 0),
+    ('12000004', 'C9', '2025-06-07', 1), ('12000005', 'C2', '2025-06-07', 0),
+    -- Date: 2025-06-08
+    ('12044719', 'C1', '2025-06-08', 0), ('12044840', 'C2', '2025-06-08', 1),
+    ('12044772', 'C3', '2025-06-08', 0), ('12043494', 'C4', '2025-06-08', 1),
+    ('12042244', 'C5', '2025-06-08', 0), ('12000001', 'C6', '2025-06-08', 1),
+    ('12000002', 'C7', '2025-06-08', 0), ('12000003', 'C8', '2025-06-08', 1),
+    ('12000004', 'C9', '2025-06-08', 0), ('12000005', 'C2', '2025-06-08', 1),
+    -- Date: 2025-06-09
+    ('12044719', 'C1', '2025-06-09', 1), ('12044840', 'C2', '2025-06-09', 0),
+    ('12044772', 'C3', '2025-06-09', 1), ('12043494', 'C4', '2025-06-09', 0),
+    ('12042244', 'C5', '2025-06-09', 1), ('12000001', 'C6', '2025-06-09', 0),
+    ('12000002', 'C7', '2025-06-09', 1), ('12000003', 'C8', '2025-06-09', 0),
+    ('12000004', 'C9', '2025-06-09', 1), ('12000005', 'C2', '2025-06-09', 0),
+    -- Date: 2025-06-10
+    ('12044719', 'C1', '2025-06-10', 0), ('12044840', 'C2', '2025-06-10', 1),
+    ('12044772', 'C3', '2025-06-10', 0), ('12043494', 'C4', '2025-06-10', 1),
+    ('12042244', 'C5', '2025-06-10', 0), ('12000001', 'C6', '2025-06-10', 1),
+    ('12000002', 'C7', '2025-06-10', 0), ('12000003', 'C8', '2025-06-10', 1),
+    ('12000004', 'C9', '2025-06-10', 0), ('12000005', 'C2', '2025-06-10', 1),
+    -- Date: 2025-06-11
+    ('12044719', 'C1', '2025-06-11', 1), ('12044840', 'C2', '2025-06-11', 0),
+    ('12044772', 'C3', '2025-06-11', 1), ('12043494', 'C4', '2025-06-11', 0),
+    ('12042244', 'C5', '2025-06-11', 1), ('12000001', 'C6', '2025-06-11', 0),
+    ('12000002', 'C7', '2025-06-11', 1), ('12000003', 'C8', '2025-06-11', 0),
+    ('12000004', 'C9', '2025-06-11', 1), ('12000005', 'C2', '2025-06-11', 0),
+    -- Date: 2025-06-12
+    ('12044719', 'C1', '2025-06-12', 0), ('12044840', 'C2', '2025-06-12', 1),
+    ('12044772', 'C3', '2025-06-12', 0), ('12043494', 'C4', '2025-06-12', 1),
+    ('12042244', 'C5', '2025-06-12', 0), ('12000001', 'C6', '2025-06-12', 1),
+    ('12000002', 'C7', '2025-06-12', 0), ('12000003', 'C8', '2025-06-12', 1),
+    ('12000004', 'C9', '2025-06-12', 0), ('12000005', 'C2', '2025-06-12', 1)
+ON DUPLICATE KEY UPDATE present = VALUES(present);
+
+-- 14. Confirmation Message [cite: 1]
+SELECT 'Database setup complete. Subjects added. All students assigned all subjects. Attendance data populated.' AS Status;
+
+-- ====================================================================
+-- End of Script
+-- ====================================================================
