@@ -7,7 +7,7 @@ import datetime
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'sajan111', # Ensure this matches your MySQL root password
+    'password': 'sajan111', #  MySQL root password
     'database': 'attendance_system'
 }
 
@@ -373,9 +373,9 @@ class InstructorInterface:
             class_id_to_subject_map = {entry[0]: entry[2] for entry in ROUTINE_DATA}
 
             for r in results:
-                # --- MODIFIED: Get subject from class_id ---
+                # Get subject from class_id ---
                 class_subject = class_id_to_subject_map.get(r['class_id'], 'N/A')
-                # --- END MODIFIED ---
+                
                 self.attendance_view_tree.insert("", "end", values=(
                     r['student_id'],
                     r['name'],

@@ -41,7 +41,7 @@ class AttendanceSystemCLI:
         self.db_config = {
             'host': 'localhost',
             'user': 'root',
-            'password': 'sajan111', # IMPORTANT: Ensure this matches your MySQL root password
+            'password': 'sajan111', # IMPORTANT:  MySQL root password
             'database': 'attendance_system'
         }
         self.conn = None
@@ -67,7 +67,7 @@ class AttendanceSystemCLI:
         if self.cursor: self.cursor.close()
         if self.conn and self.conn.is_connected():
             self.conn.close()
-            # print("CLI: Database connection closed.") # Can be noisy
+            # print("CLI: Database connection closed.") 
 
     def _update_text_file(self, file_path, student_id_to_remove, id_index=0):
         """Helper function to remove lines from students.txt or attendance.txt."""
@@ -135,7 +135,7 @@ class AttendanceSystemCLI:
 
     def mark_attendance_by_subject(self):
         """Marks attendance by selecting a subject first."""
-        print("\n--- Mark Attendance by Subject ---")
+        print("--- Mark Attendance by Subject ---")
         sid = input("Enter Student ID: ").strip()
         if not sid: print("Student ID required."); return
 
@@ -232,7 +232,7 @@ class AttendanceSystemCLI:
                 # Filter these DB subjects to show only those present in ROUTINE_SUBJECT_NAMES
                 display_subjects = [s_name for s_name in all_enrolled_db_subjects if s_name in ROUTINE_SUBJECT_NAMES]
                 
-                # Handle cases like "Frienson Pradhan" who might not have subjects if SQL was not run for them
+                
                 if not all_enrolled_db_subjects and student['name'] == "Frienson Pradhan": # Example specific handling if needed
                      subject_names_str = "None (or registration needs subject assignment)"
                 elif not display_subjects and all_enrolled_db_subjects: # Enrolled in subjects, but none are 'routine' ones
@@ -256,7 +256,7 @@ class AttendanceSystemCLI:
             """)
             records = self.cursor.fetchall()
             if not records: print("No attendance records found."); return
-            print("\n--- All Attendance Records (from DB) ---")
+            print("--- All Attendance Records (from DB) ---")
             print(f"{'Student ID':<12} | {'Name':<20} | {'Class ID':<10} | {'Status':<7} | {'Date':<10}")
             print("-" * 70)
             for record in records:
@@ -274,7 +274,7 @@ def print_main_menu_cli():
     print("1. Register Student (Basic)")
     print("2. Mark Attendance by Subject")
     print("3. Mark Attendance by Class ID")
-    print("4. View Students & Their Subjects (Routine Filtered)") # Updated description
+    print("4. View Students & Their Subjects (Routine Filtered)") 
     print("5. View All Attendance Records")
     print("6. Delete Student")
     print("7. Exit")

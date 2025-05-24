@@ -7,7 +7,7 @@ from datetime import datetime, date
 DB_CONFIG = {
     'host': 'localhost',
     'user': 'root',
-    'password': 'sajan111', # Ensure this matches your MySQL root password
+    'password': 'sajan111', #  MySQL root password
     'database': 'attendance_system'
 }
 
@@ -25,7 +25,7 @@ ROUTINE_DATA = [
     ("C10", "Friday", "Physics", "1:00 PM - 3:00 PM", "Upendra", "Lab 3")
 ]
 
-# --- NEW: Hardcoded Subjects List ---
+# --- Hardcoded Subjects List ---
 HARDCODED_SUBJECTS = [
     "Mathematics", "English", "Science", "History", "Art",
     "Economics", "Chemistry", "Biology", "Physics"
@@ -92,10 +92,9 @@ class StudentPortalInterface:
         info_frame.pack(fill="x", pady=5)
         ttk.Label(info_frame, text=f"Student ID: {self.student_info['student_id']}").pack(anchor="w")
         ttk.Label(info_frame, text=f"Name: {self.student_info['name']}").pack(anchor="w")
-        # --- MODIFIED ---
+        
         ttk.Label(info_frame, text="Grade: 10").pack(anchor="w")
-        # Primary Course and Class ID removed
-        # --- END MODIFIED ---
+        
 
         subjects_frame = ttk.LabelFrame(self.my_info_tab, text="My Enrolled Subjects (All)", padding=10)
         subjects_frame.pack(fill="both", expand=True, pady=10)
@@ -105,10 +104,10 @@ class StudentPortalInterface:
     def create_routine_tab(self):
         """Creates the tab for viewing the full class routine."""
         self.routine_tab = ttk.Frame(self.tab_control, padding=10)
-        # --- MODIFIED ---
+        
         self.tab_control.add(self.routine_tab, text="My Class Routine (All)")
         ttk.Label(self.routine_tab, text="Full Weekly Schedule", font=("Arial", 14, "bold")).pack(pady=10)
-        # --- END MODIFIED ---
+        
         self._setup_routine_treeview(self.routine_tab)
 
     def _setup_routine_treeview(self, parent_frame):
@@ -130,7 +129,7 @@ class StudentPortalInterface:
         for subj in self.enrolled_subject_names: # Uses hardcoded list
             self.subjects_list_text.insert(tk.END, f"- {subj}\n")
         self.subjects_list_text.config(state="disabled")
-        # --- END MODIFIED ---
+        
 
     def load_routine_display(self):
         """--- MODIFIED: Displays ALL classes from ROUTINE_DATA ---"""
@@ -147,7 +146,7 @@ class StudentPortalInterface:
         # Populate the treeview
         for entry in actual_routine:
             self.routine_tree.insert("", "end", values=entry)
-        # --- END MODIFIED ---
+        
 
     def create_view_attendance_tab(self):
         """Creates the tab for viewing attendance (uses hardcoded subjects for filter)."""
@@ -241,7 +240,7 @@ class StudentPortalInterface:
         self.root.destroy()
 
 # ====================================================================
-# == StudentLogin Class (Login GUI) - Modified to not rely on class_id/course ==
+# == StudentLogin Class (Login GUI) - 
 # ====================================================================
 class StudentLogin:
     def __init__(self, master, success_callback):
@@ -288,7 +287,7 @@ class StudentLogin:
             if student and student['password'] == password:
                 messagebox.showinfo("Login Success", f"Welcome, {student['name']}!")
                 self.master.destroy()
-                # Pass a simplified dictionary, as course/class_id are not used anymore
+                # Pass a simplified dictionary, 
                 self.success_callback({'student_id': student['student_id'], 'name': student['name']})
             else:
                 messagebox.showerror("Login Failed", "Invalid Student ID or Password.")
